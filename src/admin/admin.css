@@ -1,0 +1,966 @@
+/*
+ * livechat-bridge — agent inbox styles.
+ *
+ * Every selector is prefixed `.lcb-admin-` so the sheet can be dropped into a
+ * host app that already has global CSS without a reset fight. Everything a host
+ * is likely to rebrand is exposed as a `--lcb-admin-*` custom property on
+ * `.lcb-admin`, so overriding the theme never requires touching a selector.
+ *
+ * Colour carries exactly one meaning here: conversation status. Everything else
+ * is greyscale. An agent scanning this screen for eight hours should be able to
+ * spot an unclaimed chat without reading a word.
+ */
+
+.lcb-admin {
+  /* Surfaces, lightest to darkest in light mode. */
+  --lcb-admin-bg: #f6f7f9;
+  --lcb-admin-surface: #ffffff;
+  --lcb-admin-surface-alt: #fbfbfc;
+  --lcb-admin-hover: #f1f2f5;
+  --lcb-admin-active: #e9ebf0;
+  --lcb-admin-border: #e3e5ea;
+  --lcb-admin-border-strong: #cfd2da;
+
+  /* Text. */
+  --lcb-admin-text: #16181d;
+  --lcb-admin-text-muted: #5f6672;
+  --lcb-admin-text-faint: #8b93a1;
+
+  /* Accent — used for focus, selection and the primary button only. */
+  --lcb-admin-accent: #3b5bdb;
+  --lcb-admin-accent-contrast: #ffffff;
+  --lcb-admin-accent-soft: #eaeeff;
+
+  /* Status hues. These are the only other colours in the sheet. */
+  --lcb-admin-status-open: #b45309;
+  --lcb-admin-status-open-bg: #fdf3e3;
+  --lcb-admin-status-assigned: #1f7a4d;
+  --lcb-admin-status-assigned-bg: #e6f4ec;
+  --lcb-admin-status-ai: #6a3fb5;
+  --lcb-admin-status-ai-bg: #f0eafc;
+  --lcb-admin-status-closed: #5f6672;
+  --lcb-admin-status-closed-bg: #eef0f3;
+  --lcb-admin-danger: #b42318;
+
+  /* Metrics. */
+  --lcb-admin-radius: 8px;
+  --lcb-admin-radius-sm: 5px;
+  --lcb-admin-list-width: 320px;
+  --lcb-admin-detail-width: 300px;
+  --lcb-admin-topbar-height: 52px;
+  --lcb-admin-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --lcb-admin-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--lcb-admin-bg);
+  color: var(--lcb-admin-text);
+  font-family: var(--lcb-admin-font);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lcb-admin *,
+.lcb-admin *::before,
+.lcb-admin *::after {
+  box-sizing: border-box;
+}
+
+/* Visible focus everywhere. The inbox must be fully operable by keyboard, and
+   an invisible focus ring is the fastest way to make that untrue in practice. */
+.lcb-admin :focus-visible {
+  outline: 2px solid var(--lcb-admin-accent);
+  outline-offset: 2px;
+  border-radius: var(--lcb-admin-radius-sm);
+}
+
+.lcb-admin-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Top bar                                                                     */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--lcb-admin-topbar-height);
+  padding: 0 16px;
+  background: var(--lcb-admin-surface);
+  border-bottom: 1px solid var(--lcb-admin-border);
+  flex: 0 0 auto;
+}
+
+.lcb-admin-topbar__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lcb-admin-topbar__title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lcb-admin-topbar__site {
+  font-family: var(--lcb-admin-mono);
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.lcb-admin-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lcb-admin-conn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+}
+
+.lcb-admin-conn__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-conn[data-state="open"] .lcb-admin-conn__dot,
+.lcb-admin-conn[data-state="polling"] .lcb-admin-conn__dot {
+  background: var(--lcb-admin-status-assigned);
+}
+
+.lcb-admin-conn[data-state="connecting"] .lcb-admin-conn__dot {
+  background: var(--lcb-admin-status-open);
+  animation: lcb-admin-pulse 1.4s ease-in-out infinite;
+}
+
+.lcb-admin-conn[data-state="closed"] .lcb-admin-conn__dot {
+  background: var(--lcb-admin-danger);
+}
+
+@keyframes lcb-admin-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.lcb-admin-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+}
+
+.lcb-admin-me__avatar,
+.lcb-admin-row__avatar,
+.lcb-admin-detail__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--lcb-admin-active);
+  color: var(--lcb-admin-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+}
+
+.lcb-admin-notice {
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--lcb-admin-accent-soft);
+  border-bottom: 1px solid var(--lcb-admin-border);
+  color: var(--lcb-admin-text);
+  font-size: 12px;
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Three-pane grid                                                             */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-panes {
+  display: grid;
+  grid-template-columns: var(--lcb-admin-list-width) minmax(0, 1fr) var(--lcb-admin-detail-width);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.lcb-admin-pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--lcb-admin-surface);
+}
+
+.lcb-admin-pane--list {
+  border-right: 1px solid var(--lcb-admin-border);
+  background: var(--lcb-admin-surface-alt);
+}
+
+.lcb-admin-pane--detail {
+  border-left: 1px solid var(--lcb-admin-border);
+  background: var(--lcb-admin-surface-alt);
+  overflow-y: auto;
+}
+
+/* -------------------------------------------------------------------------- */
+/* List pane                                                                   */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-list__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 8px;
+  border-bottom: 1px solid var(--lcb-admin-border);
+  flex: 0 0 auto;
+}
+
+.lcb-admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: var(--lcb-admin-radius-sm);
+  background: transparent;
+  color: var(--lcb-admin-text-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lcb-admin-tab:hover {
+  background: var(--lcb-admin-hover);
+}
+
+.lcb-admin-tab[data-active] {
+  background: var(--lcb-admin-active);
+  color: var(--lcb-admin-text);
+  font-weight: 600;
+}
+
+.lcb-admin-tab__count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-tab[data-active] .lcb-admin-tab__count {
+  color: var(--lcb-admin-text-muted);
+}
+
+.lcb-admin-list__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-list__error {
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--lcb-admin-danger);
+  font-size: 12px;
+}
+
+.lcb-admin-rows {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--lcb-admin-border);
+  cursor: pointer;
+  /* Comfortable hit target without inflating list density. */
+  min-height: 62px;
+  align-items: flex-start;
+}
+
+.lcb-admin-row:hover {
+  background: var(--lcb-admin-hover);
+}
+
+/* The keyboard cursor is distinct from the open conversation: an agent arrowing
+   through the list must see where they are before they commit with Enter. */
+.lcb-admin-row[data-cursor] {
+  box-shadow: inset 2px 0 0 var(--lcb-admin-border-strong);
+  background: var(--lcb-admin-hover);
+}
+
+.lcb-admin-row[data-selected] {
+  background: var(--lcb-admin-accent-soft);
+  box-shadow: inset 2px 0 0 var(--lcb-admin-accent);
+}
+
+.lcb-admin-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-row__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lcb-admin-row__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--lcb-admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lcb-admin-row[data-unread] .lcb-admin-row__name {
+  font-weight: 650;
+}
+
+.lcb-admin-row__time {
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+
+.lcb-admin-row__preview {
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lcb-admin-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.lcb-admin-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--lcb-admin-status-closed-bg);
+  color: var(--lcb-admin-status-closed);
+  white-space: nowrap;
+}
+
+.lcb-admin-pill[data-status="open"] {
+  background: var(--lcb-admin-status-open-bg);
+  color: var(--lcb-admin-status-open);
+}
+
+.lcb-admin-pill[data-status="assigned"] {
+  background: var(--lcb-admin-status-assigned-bg);
+  color: var(--lcb-admin-status-assigned);
+}
+
+.lcb-admin-pill[data-status="ai"] {
+  background: var(--lcb-admin-status-ai-bg);
+  color: var(--lcb-admin-status-ai);
+}
+
+.lcb-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--lcb-admin-accent);
+  color: var(--lcb-admin-accent-contrast);
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.lcb-admin-more {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 10px 12px;
+  padding: 6px;
+  border: 1px solid var(--lcb-admin-border);
+  border-radius: var(--lcb-admin-radius-sm);
+  background: var(--lcb-admin-surface);
+  color: var(--lcb-admin-text-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lcb-admin-more:hover {
+  background: var(--lcb-admin-hover);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Empty states                                                                */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 40px 24px;
+  text-align: center;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-empty__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lcb-admin-text);
+}
+
+.lcb-admin-empty__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lcb-admin-text-faint);
+  max-width: 34ch;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Thread pane                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-thread__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--lcb-admin-border);
+  flex: 0 0 auto;
+}
+
+.lcb-admin-thread__ident {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.lcb-admin-thread__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lcb-admin-thread__sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-thread__actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.lcb-admin-back {
+  display: none;
+  border: 0;
+  background: transparent;
+  color: var(--lcb-admin-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: var(--lcb-admin-radius-sm);
+  cursor: pointer;
+}
+
+.lcb-admin-back:hover {
+  background: var(--lcb-admin-hover);
+}
+
+.lcb-admin-btn {
+  padding: 5px 11px;
+  border: 1px solid var(--lcb-admin-border-strong);
+  border-radius: var(--lcb-admin-radius-sm);
+  background: var(--lcb-admin-surface);
+  color: var(--lcb-admin-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lcb-admin-btn:hover:not(:disabled) {
+  background: var(--lcb-admin-hover);
+}
+
+.lcb-admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lcb-admin-btn--primary {
+  background: var(--lcb-admin-accent);
+  border-color: var(--lcb-admin-accent);
+  color: var(--lcb-admin-accent-contrast);
+}
+
+.lcb-admin-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background: var(--lcb-admin-accent);
+}
+
+.lcb-admin-btn--danger {
+  background: var(--lcb-admin-danger);
+  border-color: var(--lcb-admin-danger);
+  color: #ffffff;
+}
+
+.lcb-admin-btn--danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background: var(--lcb-admin-danger);
+}
+
+.lcb-admin-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--lcb-admin-surface-alt);
+  border-bottom: 1px solid var(--lcb-admin-border);
+  flex: 0 0 auto;
+}
+
+.lcb-admin-confirm__text {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+}
+
+.lcb-admin-confirm__actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.lcb-admin-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lcb-admin-thread__status {
+  margin: auto;
+  color: var(--lcb-admin-text-faint);
+  font-size: 12px;
+}
+
+.lcb-admin-msg {
+  max-width: 68ch;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lcb-admin-msg[data-mine] {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.lcb-admin-msg__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-msg__author {
+  font-weight: 600;
+  color: var(--lcb-admin-text-muted);
+}
+
+.lcb-admin-msg__body {
+  padding: 8px 11px;
+  border-radius: var(--lcb-admin-radius);
+  background: var(--lcb-admin-hover);
+  color: var(--lcb-admin-text);
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lcb-admin-msg[data-sender="agent"] .lcb-admin-msg__body {
+  background: var(--lcb-admin-accent-soft);
+}
+
+.lcb-admin-msg[data-mine] .lcb-admin-msg__body {
+  background: var(--lcb-admin-accent);
+  color: var(--lcb-admin-accent-contrast);
+}
+
+.lcb-admin-msg[data-sender="ai"] .lcb-admin-msg__body {
+  background: var(--lcb-admin-status-ai-bg);
+  color: var(--lcb-admin-text);
+}
+
+.lcb-admin-msg__files {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.lcb-admin-msg__files a {
+  color: var(--lcb-admin-accent);
+}
+
+.lcb-admin-system {
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Composer                                                                    */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-composer {
+  border-top: 1px solid var(--lcb-admin-border);
+  padding: 10px 16px 12px;
+  background: var(--lcb-admin-surface);
+  flex: 0 0 auto;
+}
+
+.lcb-admin-composer__input {
+  width: 100%;
+  resize: vertical;
+  padding: 9px 11px;
+  border: 1px solid var(--lcb-admin-border-strong);
+  border-radius: var(--lcb-admin-radius);
+  background: var(--lcb-admin-surface);
+  color: var(--lcb-admin-text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.lcb-admin-composer__input:disabled {
+  background: var(--lcb-admin-hover);
+  color: var(--lcb-admin-text-faint);
+  cursor: not-allowed;
+}
+
+.lcb-admin-composer__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.lcb-admin-composer__hint,
+.lcb-admin-composer__blocked {
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-composer__blocked {
+  color: var(--lcb-admin-status-open);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Detail pane                                                                 */
+/* -------------------------------------------------------------------------- */
+
+.lcb-admin-detail__placeholder {
+  margin: 0;
+  padding: 20px 16px;
+  font-size: 12px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-detail {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.lcb-admin-detail__heading {
+  margin: 0 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-detail__ident {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.lcb-admin-detail__avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+
+.lcb-admin-detail__name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lcb-admin-detail__email {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.lcb-admin-detail__email--none {
+  color: var(--lcb-admin-text-faint);
+  font-style: italic;
+}
+
+.lcb-admin-detail__muted {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lcb-admin-fact {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.lcb-admin-fact__label {
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lcb-admin-fact__value {
+  margin: 0;
+  font-size: 12px;
+  color: var(--lcb-admin-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lcb-admin-fact__value[data-mono] {
+  font-family: var(--lcb-admin-mono);
+  font-size: 11px;
+}
+
+.lcb-admin-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lcb-admin-history__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--lcb-admin-border);
+  border-radius: var(--lcb-admin-radius-sm);
+  background: var(--lcb-admin-surface);
+  font: inherit;
+  cursor: pointer;
+}
+
+.lcb-admin-history__item:hover {
+  background: var(--lcb-admin-hover);
+}
+
+.lcb-admin-history__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lcb-admin-history__time {
+  font-size: 11px;
+  color: var(--lcb-admin-text-faint);
+}
+
+.lcb-admin-history__preview {
+  font-size: 12px;
+  color: var(--lcb-admin-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Narrow layout — one pane at a time                                          */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .lcb-admin-panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The detail pane has no room of its own below this width; its content is
+     reachable by widening the window, so hide rather than stack it. */
+  .lcb-admin-pane--detail {
+    display: none;
+  }
+
+  .lcb-admin[data-pane="list"] .lcb-admin-pane--thread {
+    display: none;
+  }
+
+  .lcb-admin[data-pane="thread"] .lcb-admin-pane--list {
+    display: none;
+  }
+
+  .lcb-admin[data-pane="thread"] .lcb-admin-back {
+    display: inline-flex;
+  }
+
+  .lcb-admin-pane--list {
+    border-right: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dark theme                                                                  */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  .lcb-admin {
+    --lcb-admin-bg: #0e1014;
+    --lcb-admin-surface: #15181e;
+    --lcb-admin-surface-alt: #12151a;
+    --lcb-admin-hover: #1d212a;
+    --lcb-admin-active: #262b36;
+    --lcb-admin-border: #23272f;
+    --lcb-admin-border-strong: #333944;
+
+    --lcb-admin-text: #e6e8ec;
+    --lcb-admin-text-muted: #9aa2b1;
+    --lcb-admin-text-faint: #6b7381;
+
+    --lcb-admin-accent: #6b87ff;
+    --lcb-admin-accent-contrast: #0e1014;
+    --lcb-admin-accent-soft: #1b2136;
+
+    --lcb-admin-status-open: #e8a33d;
+    --lcb-admin-status-open-bg: #2a220f;
+    --lcb-admin-status-assigned: #52c08a;
+    --lcb-admin-status-assigned-bg: #10261c;
+    --lcb-admin-status-ai: #b092f5;
+    --lcb-admin-status-ai-bg: #201a33;
+    --lcb-admin-status-closed: #8b93a1;
+    --lcb-admin-status-closed-bg: #1d212a;
+    --lcb-admin-danger: #f0736a;
+  }
+
+  .lcb-admin-btn--danger {
+    color: #1a0f0e;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reduced motion                                                              */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .lcb-admin *,
+  .lcb-admin *::before,
+  .lcb-admin *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

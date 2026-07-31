@@ -1,21 +1,22 @@
-# livechat-bridge — project context for Claude
+# livechat-bridge — project context
 
-> Drop-in live chat widget + staff dashboard + Claude AI fallback, published as a
-> reusable npm package for **Next.js / React** apps. Author: Hossain Billal.
-> Not a SaaS, not a PHP/WooCommerce/OpenCart plugin — those are explicitly out of
-> scope. Chat is **logged-in only** (no anonymous guests).
+Embeddable multi-site live chat published as an npm package: a React widget for
+visitors, an agent inbox for staff, Mongoose-backed route handlers for the
+server. Author: Hossain Billal. MIT.
 
-## Where the plan lives
+## Non-negotiables
 
-- **`docs/PHASE-2-PLAN.md`** — the active roadmap (Workstreams A/B/C), progress
-  log, and a "Next session — start here" block. Read it first when resuming.
-- **`CHANGELOG.md`** — `Unreleased — 0.2.0` tracks Phase 2 work.
+- **`siteId` is the tenant key.** Every Mongoose query filters on it; every
+  schema indexes it as the leading field of a compound index. A query without
+  `siteId` is a cross-tenant leak — treat it as a bug, not a style issue.
+- **Visitors may be anonymous.** Identity is optional; a signed session token
+  carrying `visitorId` is the auth boundary for the visitor side.
+- **`src/types.ts` is the contract** binding all three entry points. Change it
+  deliberately — widget, server, and admin all depend on it.
 
-## Commands (IMPORTANT environment notes)
+## Commands
 
-`pnpm` is **not on PATH** here — invoke it via `corepack pnpm` (corepack is
-installed). esbuild's build script must stay allowed in `pnpm-workspace.yaml`
-(`allowBuilds: { esbuild: true }`) or `tsup` breaks.
+`pnpm` is **not on PATH** — use `corepack pnpm`.
 
 ```bash
 corepack pnpm install
@@ -24,52 +25,41 @@ corepack pnpm test        # vitest run
 corepack pnpm build       # tsup → dist/ (ESM + CJS + d.ts)
 ```
 
-Always end a work session with all four green.
+End every session with all four green.
 
-## Architecture (mental model)
+## Layout
 
-Three layers, swappable via interfaces. The bridge is the orchestrator; adapters
-are injected.
+Three independent entry points over one shared contract:
 
-- **`src/core/`** — framework-free types, schemas (zod), events, ids, errors.
-  `EVENTS`, `chatChannel(id)`, `STAFF_CHANNEL`, `CHAT_STATUS`, `SENDER_TYPE`.
-- **`src/server/bridge.ts`** — `createLiveChatBridge(config)`. Owns the
-  claim/AI-fallback state machine and an in-memory timer table (`ai-scheduler`).
-  **One bridge per process** (timers live in memory).
-- **Adapters** (injected into the bridge):
-  - `src/server/transport/` — realtime. `Transport` iface in `types.ts`;
-    `PusherTransport`; `SSETransport` (a `SubscribableTransport`).
-  - `src/server/pubsub/` — `PubSub` + `InMemoryPubSub` (backs SSE fan-out).
-  - `src/server/adapters/storage/` — `StorageAdapter`: `MongoStorage`,
-    `MemoryStorage`, `PostgresStorage` (**stub — throws**, not yet implemented).
-    `claimChat` MUST be atomic.
-  - `src/server/adapters/ai/` — `AIProvider`: `AnthropicProvider` (uses prompt
-    caching), OpenAI/Gemini stubs.
-- **`src/server/handlers/`** — Web-standard `Request`→`Response` handlers
-  (runtime-portable). `src/server/nextjs.ts` is a thin App Router adapter.
-- **`src/react/`** — `LiveChatWidget`, `AdminDashboard`, and `shared/`:
-  `RealtimeClient` abstraction (`PusherRealtimeClient`, `SSERealtimeClient`),
-  `useRealtimeChannel`, `api`, `i18n`.
+- `src/types.ts` — shared types. No runtime, no deps; imports cleanly into
+  browser, Node, and edge.
+- `src/widget/` → `livechat-bridge/widget`. `transport.ts` holds the
+  WebSocket-first / long-poll-fallback state machine and is **framework-free
+  and injectable** so it tests in plain Node; `useChatSocket.ts` is a thin React
+  wrapper over it.
+- `src/server/` → `livechat-bridge/server`. `models/` (Mongoose),
+  `handlers/` (Web-standard `Request` → `Response`, no framework imports),
+  `session.ts` (HMAC via Web Crypto — no `jsonwebtoken`, must run on edge),
+  `events.ts` (in-process fan-out + replay buffer), `ai/`.
+- `src/admin/` → `livechat-bridge/admin`. Agent inbox UI; talks to the server
+  over HTTP only.
 
-Auth boundary is the single `getViewer(req)` hook. Channel ACL lives in
-`bridge.authorizeSubscription` (shared by Pusher auth and the SSE stream).
+Widget and admin never import from each other or from `src/server/`.
 
 ## Conventions
 
-- ESM with explicit `.js` import extensions even from `.ts` files.
-- Handlers stay framework-agnostic (Web `Request`/`Response`); Next.js specifics
-  only in `nextjs.ts`.
-- New realtime/storage/ai backends implement the existing interface — don't
-  special-case them in the bridge.
-- Match the surrounding comment density and naming; tests live in `tests/` with
-  fakes in `tests/fakes.ts`.
-- This repo has a **code-review-graph MCP** (see `~/CLAUDE.md`) — prefer it over
-  raw Grep/Glob for exploration and impact analysis.
+- ESM with explicit `.js` import extensions, even from `.ts`/`.tsx`.
+- TypeScript strict + `noUncheckedIndexedAccess`.
+- Tests in `tests/*.test.ts`, `environment: 'node'`. Prefer injectable fakes over
+  jsdom — the transport and handlers are both designed to allow this.
+- No new runtime dependencies without a strong reason; `react`, `mongoose`, and
+  `@anthropic-ai/sdk` are all **optional** peers.
+- CSS is prefixed (`.lcb-`, `.lcb-admin-`) because the widget renders on
+  third-party pages, and themed with CSS custom properties.
+- Match surrounding comment density: explain *why*, not *what*.
 
-## Status (2026-05-21)
+## History
 
-- Phase 1 (v0.1.0): complete, builds green.
-- Phase 2 Workstream A (realtime independence: `RealtimeClient` abstraction, SSE
-  transport, pub/sub, Sockudo recipe): **done**, 26 tests pass.
-- Not committed to git yet — push a new repo only after a presentable,
-  production-ready MVP (see the MVP checklist in `docs/PHASE-2-PLAN.md`).
+`docs/PHASE-2-PLAN.md` describes the **superseded** v0.2.0 adapter architecture
+(StorageAdapter / Transport / AIProvider, logged-in-only, single-tenant). It is
+kept for context only. That tree is recoverable at the baseline commit.

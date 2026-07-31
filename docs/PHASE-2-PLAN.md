@@ -1,6 +1,25 @@
 # livechat-bridge — Phase 2 Plan
 
-> Status: **proposed** · Author: planning session 2026-05-21 · Targets v0.2.0
+> ## ⚠️ SUPERSEDED — kept for historical context only
+>
+> On **2026-07-31** the project pivoted to an **embeddable multi-site** product.
+> Two decisions recorded below were explicitly reversed:
+>
+> | This doc says | Current direction |
+> |---|---|
+> | Logged-in only, no anonymous guests | **Anonymous visitors supported** |
+> | Single-app library, no multi-tenancy | **`siteId` is the tenant key** |
+> | Adapter indirection (`StorageAdapter`, `Transport`, `AIProvider`) | Mongoose models exposed directly |
+> | Entry points `/core`, `/react`, `/server/nextjs` | `/widget`, `/server`, `/admin` |
+> | Realtime via SSE / Pusher / Sockudo | **WebSocket-first + HTTP long-poll** |
+>
+> The v0.2.0 architecture this doc describes is preserved at the repository's
+> baseline commit and remains recoverable. For current context see
+> [`CLAUDE.md`](../CLAUDE.md). Everything below is history.
+
+---
+
+> Status: **superseded** · Author: planning session 2026-05-21 · Targeted v0.2.0
 
 ## Context & scope decisions (confirmed 2026-05-21)
 

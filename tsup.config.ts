@@ -9,34 +9,27 @@ function copy(src: string, dest: string): void {
 
 export default defineConfig({
   entry: {
-    'core/index': 'src/core/index.ts',
+    index: 'src/index.ts',
+    'widget/index': 'src/widget/index.ts',
     'server/index': 'src/server/index.ts',
-    'server/nextjs': 'src/server/nextjs.ts',
-    'react/index': 'src/react/index.ts',
+    'admin/index': 'src/admin/index.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,
   splitting: false,
   clean: true,
   sourcemap: true,
-  external: [
-    'react',
-    'react-dom',
-    'mongoose',
-    'pusher',
-    'pusher-js',
-    '@anthropic-ai/sdk',
-    'zod',
-  ],
+  // Everything here is an optional peer dependency: the widget entry must not
+  // drag Mongoose into a browser bundle, and the server entry must not pull in
+  // React. Bundling any of them would also risk duplicate copies in the host app.
+  external: ['react', 'react-dom', 'mongoose', '@anthropic-ai/sdk', 'ws', 'zod'],
   loader: {
     '.json': 'json',
   },
   async onSuccess() {
-    copy('src/react/widget/widget.css', 'dist/react/widget.css');
-    copy('src/react/admin/admin.css', 'dist/react/admin.css');
-    copy('src/i18n/en.json', 'dist/i18n/en.json');
-    copy('src/i18n/bn.json', 'dist/i18n/bn.json');
+    copy('src/widget/widget.css', 'dist/widget/widget.css');
+    copy('src/admin/admin.css', 'dist/admin/admin.css');
     // eslint-disable-next-line no-console
-    console.log('✓ copied CSS + i18n assets');
+    console.log('✓ copied widget + admin stylesheets');
   },
 });
