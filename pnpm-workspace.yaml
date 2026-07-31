@@ -1,0 +1,9 @@
+packages:
+  - '.'
+
+# esbuild must be allowed to run its install script or `tsup` breaks.
+# `allowBuilds` is honoured by pnpm 10+; pnpm 9 runs build scripts by default.
+allowBuilds:
+  esbuild: true
+onlyBuiltDependencies:
+  - esbuild

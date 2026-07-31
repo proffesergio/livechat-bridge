@@ -1,0 +1,109 @@
+{
+  "name": "livechat-bridge",
+  "version": "0.2.0",
+  "description": "Drop-in live chat + AI fallback for any Next.js / React app. Pluggable realtime (SSE / Pusher / Sockudo), Mongo or in-memory storage, Anthropic Claude assistant.",
+  "type": "module",
+  "license": "MIT",
+  "author": {
+    "name": "Hossain Billal",
+    "url": "https://next-portfolio-ruby-nine.vercel.app/"
+  },
+  "homepage": "https://github.com/proffesergio/livechat-bridge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proffesergio/livechat-bridge.git"
+  },
+  "keywords": [
+    "live-chat",
+    "customer-support",
+    "pusher",
+    "anthropic",
+    "claude",
+    "nextjs",
+    "react",
+    "mongoose",
+    "chat-widget",
+    "ai-fallback"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "LiveChatSupport.md",
+    "README.md",
+    "TestRun.md",
+    "CHANGELOG.md"
+  ],
+  "main": "./dist/server/index.cjs",
+  "module": "./dist/server/index.js",
+  "types": "./dist/server/index.d.ts",
+  "exports": {
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs"
+    },
+    "./server/nextjs": {
+      "types": "./dist/server/nextjs.d.ts",
+      "import": "./dist/server/nextjs.js",
+      "require": "./dist/server/nextjs.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs"
+    },
+    "./react/widget.css": "./dist/react/widget.css",
+    "./react/admin.css": "./dist/react/admin.css",
+    "./i18n/en": "./dist/i18n/en.json",
+    "./i18n/bn": "./dist/i18n/bn.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "dev:link-atharnur": "node scripts/dev-link-atharnur.mjs",
+    "prepublishOnly": "tsup && vitest run"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": ">=0.32.0",
+    "mongoose": "^8.0.0",
+    "pusher": "^5.0.0",
+    "pusher-js": "^8.0.0",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "zod": "^3.22.0"
+  },
+  "peerDependenciesMeta": {
+    "mongoose": {
+      "optional": true
+    },
+    "@anthropic-ai/sdk": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.97.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "mongoose": "^8.7.0",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "zod": "^3.23.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

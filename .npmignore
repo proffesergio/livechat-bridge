@@ -1,0 +1,10 @@
+src/
+tests/
+examples/
+scripts/
+.gitignore
+tsconfig.json
+tsup.config.ts
+.github/
+*.tsbuildinfo
+coverage/

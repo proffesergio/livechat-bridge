@@ -1,0 +1,123 @@
+:root {
+  color-scheme: light;
+  --page-fg: #0f172a;
+  --page-muted: #475569;
+  --page-bg: #f8fafc;
+  --page-accent: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100%;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 120px;
+}
+
+.page h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+}
+
+.page p {
+  color: var(--page-muted);
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+
+.page .card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.page .row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.page a,
+.page button.link {
+  color: var(--page-accent);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.page a:hover,
+.page button.link:hover {
+  text-decoration: underline;
+}
+
+.page .btn {
+  background: var(--page-accent);
+  color: white;
+  border: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.page .btn.secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.page label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.page input[type='text'],
+.page input[type='email'] {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font: inherit;
+  margin-bottom: 12px;
+}
+
+.admin-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 13px;
+  color: var(--page-muted);
+}
+
+.admin-bar strong {
+  color: var(--page-fg);
+}

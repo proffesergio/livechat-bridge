@@ -1,0 +1,96 @@
+{
+  "slug": "livechat-bridge-embeddable-support-widget",
+  "inputHash": "14499a90b19cdfaf",
+  "generatedAt": "2026-07-31T04:45:33.439Z",
+  "source": "claude-cli",
+  "recipe": {
+    "start_with_plan_mode": true,
+    "subagents": [
+      {
+        "type": "Explore",
+        "count": 1,
+        "for": "Medium-breadth sweep to map existing React components, Mongoose connection helpers, and current Vitest/pnpm layout before any design work."
+      },
+      {
+        "type": "Plan",
+        "count": 1,
+        "for": "Design the three-entry-point package surface (widget/server/admin), exports map, and WebSocket-plus-poll transport across 15+ files."
+      },
+      {
+        "type": "general-purpose",
+        "count": 3,
+        "for": "One isolated context per package — widget React + useChatSocket, server Mongoose models/handlers, admin inbox UI — so the three builds don't cross-contaminate context."
+      },
+      {
+        "type": "security-reviewer",
+        "count": 1,
+        "for": "Audit session tokens, upload handlers, cross-origin embedding, and the siteId tenant filter before the first pnpm publish."
+      },
+      {
+        "type": "code-reviewer",
+        "count": 1,
+        "for": "Final pass over the diff for exports-map correctness, index coverage on the Mongoose schemas, and Vitest gaps."
+      }
+    ],
+    "skills": [
+      {
+        "name": "/init",
+        "when": "Once at the start to generate the token-lean CLAUDE.md the plan calls for (pnpm only, colocated Vitest, no barrel re-exports)."
+      },
+      {
+        "name": "/security-review",
+        "when": "After the server handlers land and again before the first npm publish, since sessions, uploads, and multi-tenant queries are all in scope."
+      },
+      {
+        "name": "/review",
+        "when": "On the PR to github.com/proffesergio/livechat-bridge once all three entry points are implemented and tests pass."
+      },
+      {
+        "name": "/clear",
+        "when": "Between the widget, server, and admin build phases so each package starts with a clean context window."
+      },
+      {
+        "name": "/loop",
+        "when": "To poll the .github/workflows/ci.yml run after the first push to the new remote."
+      },
+      {
+        "name": "/memory",
+        "when": "Right after the approval gate, to persist package name, entry-point split, and the siteId tenant key so they survive /clear."
+      }
+    ],
+    "hooks_to_consider": [
+      {
+        "type": "PostToolUse",
+        "for": "Run Prettier (and tsc --noEmit) on every .ts/.tsx edit so formatting never shows up in the PR diff."
+      },
+      {
+        "type": "PreToolUse",
+        "for": "Gate `git push` to the new remote and `pnpm publish` behind confirmation while allowlisting `pnpm test`, `pnpm vitest`, and `git status`."
+      },
+      {
+        "type": "SessionStart",
+        "for": "Load the pnpm workspace conventions and current package build state so each cleared session starts oriented."
+      },
+      {
+        "type": "Stop",
+        "for": "Notify when the backgrounded `pnpm vitest --watch` run or a long CI poll finishes."
+      }
+    ],
+    "expected_turns": 58,
+    "estimated_cost_usd": 9.4,
+    "execution_order": [
+      "1. Enter Plan Mode; run /init to create the token-lean CLAUDE.md, and dispatch the Explore subagent (medium breadth) to map existing React components, Mongoose connection helpers, and Vitest setup.",
+      "2. Hand findings to the Plan subagent to design the workspace: package.json exports map for livechat-bridge/{widget,server,admin}, src/types.ts contracts, and the WebSocket-first + HTTP-poll transport.",
+      "3. ExitPlanMode to confirm the three approval items — package name, entry-point split, and the siteId multi-tenant key — then store them via /memory.",
+      "4. Configure hooks and permissions through the update-config skill: PostToolUse Prettier, allowlist pnpm test / git status, gate git push and pnpm publish.",
+      "5. TaskCreate three tracked tasks (widget, server, admin) and start `pnpm vitest --watch` as a background agent.",
+      "6. Build the server package first — Conversation/Message/Agent Mongoose schemas with compound siteId indexes, then messages/sessions/upload handlers — writing the siteId-isolation Vitest case before the query code.",
+      "7. Build src/widget/useChatSocket.ts and ChatWidget.tsx with reconnect tests; run the transport-fallback (HTTP long-poll) experiment in an isolated worktree and merge only if it passes.",
+      "8. Build src/admin/AgentInbox.tsx and ConversationList.tsx against the shared src/types.ts contracts; TaskUpdate each package to done as its tests go green.",
+      "9. Wire src/index.ts, README.md, and .github/workflows/ci.yml; run the simplify skill over the full diff.",
+      "10. Run /security-review (sessions, uploads, cross-origin embed, tenant scoping), then push to the new remote and /review the PR; /loop the CI run until green before pnpm publish."
+    ],
+    "rationale": "This is a greenfield multi-package build where the three entry points are genuinely independent once the shared src/types.ts contract is fixed, so the leverage is in front-loading Plan Mode plus an explicit approval gate, then fanning out one isolated agent per package with /clear between phases. Security is not an afterthought here — session tokens, uploads, and the siteId tenant filter each need a dedicated review pass with a proving Vitest case rather than a single sweep at the end. Hooks and a permission allowlist keep the loop tight: Prettier runs automatically, pnpm test runs unprompted, and only git push and pnpm publish stop to ask."
+  },
+  "rawOutput": "{\"start_with_plan_mode\":true,\"subagents\":[{\"type\":\"Explore\",\"count\":1,\"for\":\"Medium-breadth sweep to map existing React components, Mongoose connection helpers, and current Vitest/pnpm layout before any design work.\"},{\"type\":\"Plan\",\"count\":1,\"for\":\"Design the three-entry-point package surface (widget/server/admin), exports map, and WebSocket-plus-poll transport across 15+ files.\"},{\"type\":\"general-purpose\",\"count\":3,\"for\":\"One isolated context per package — widget React + useChatSocket, server Mongoose models/handlers, admin inbox UI — so the three builds don't cross-contaminate context.\"},{\"type\":\"security-reviewer\",\"count\":1,\"for\":\"Audit session tokens, upload handlers, cross-origin embedding, and the siteId tenant filter before the first pnpm publish.\"},{\"type\":\"code-reviewer\",\"count\":1,\"for\":\"Final pass over the diff for exports-map correctness, index coverage on the Mongoose schemas, and Vitest gaps.\"}],\"skills\":[{\"name\":\"/init\",\"when\":\"Once at the start to generate the token-lean CLAUDE.md the plan calls for (pnpm only, colocated Vitest, no barrel re-exports).\"},{\"name\":\"/security-review\",\"when\":\"After the server handlers land and again before the first npm publish, since sessions, uploads, and multi-tenant queries are all in scope.\"},{\"name\":\"/review\",\"when\":\"On the PR to github.com/proffesergio/livechat-bridge once all three entry points are implemented and tests pass.\"},{\"name\":\"/clear\",\"when\":\"Between the widget, server, and admin build phases so each package starts with a clean context window.\"},{\"name\":\"/loop\",\"when\":\"To poll the .github/workflows/ci.yml run after the first push to the new remote.\"},{\"name\":\"/memory\",\"when\":\"Right after the approval gate, to persist package name, entry-point split, and the siteId tenant key so they survive /clear.\"}],\"hooks_to_consider\":[{\"type\":\"PostToolUse\",\"for\":\"Run Prettier (and tsc --noEmit) on every .ts/.tsx edit so formatting never shows up in the PR diff.\"},{\"type\":\"PreToolUse\",\"for\":\"Gate `git push` to the new remote and `pnpm publish` behind confirmation while allowlisting `pnpm test`, `pnpm vitest`, and `git status`.\"},{\"type\":\"SessionStart\",\"for\":\"Load the pnpm workspace conventions and current package build state so each cleared session starts oriented.\"},{\"type\":\"Stop\",\"for\":\"Notify when the backgrounded `pnpm vitest --watch` run or a long CI poll finishes.\"}],\"expected_turns\":58,\"estimated_cost_usd\":9.4,\"execution_order\":[\"1. Enter Plan Mode; run /init to create the token-lean CLAUDE.md, and dispatch the Explore subagent (medium breadth) to map existing React components, Mongoose connection helpers, and Vitest setup.\",\"2. Hand findings to the Plan subagent to design the workspace: package.json exports map for livechat-bridge/{widget,server,admin}, src/types.ts contracts, and the WebSocket-first + HTTP-poll transport.\",\"3. ExitPlanMode to confirm the three approval items — package name, entry-point split, and the siteId multi-tenant key — then store them via /memory.\",\"4. Configure hooks and permissions through the update-config skill: PostToolUse Prettier, allowlist pnpm test / git status, gate git push and pnpm publish.\",\"5. TaskCreate three tracked tasks (widget, server, admin) and start `pnpm vitest --watch` as a background agent.\",\"6. Build the server package first — Conversation/Message/Agent Mongoose schemas with compound siteId indexes, then messages/sessions/upload handlers — writing the siteId-isolation Vitest case before the query code.\",\"7. Build src/widget/useChatSocket.ts and ChatWidget.tsx with reconnect tests; run the transport-fallback (HTTP long-poll) experiment in an isolated worktree and merge only if it passes.\",\"8. Build src/admin/AgentInbox.tsx and ConversationList.tsx against the shared src/types.ts contracts; TaskUpdate each package to done as its tests go green.\",\"9. Wire src/index.ts, README.md, and .github/workflows/ci.yml; run the simplify skill over the full diff.\",\"10. Run /security-review (sessions, uploads, cross-origin embed, tenant scoping), then push to the new remote and /review the PR; /loop the CI run until green before pnpm publish.\"],\"rationale\":\"This is a greenfield multi-package build where the three entry points are genuinely independent once the shared src/types.ts contract is fixed, so the leverage is in front-loading Plan Mode plus an explicit approval gate, then fanning out one isolated agent per package with /clear between phases. Security is not an afterthought here — session tokens, uploads, and the siteId tenant filter each need a dedicated review pass with a proving Vitest case rather than a single sweep at the end. Hooks and a permission allowlist keep the loop tight: Prettier runs automatically, pnpm test runs unprompted, and only git push and pnpm publish stop to ask.\"}\n"
+}
