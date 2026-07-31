@@ -368,6 +368,15 @@ Dark mode follows `prefers-color-scheme` out of the box; motion follows
 | **Cross-origin embedding** | Explicit origin allow-list; credentials are never paired with a wildcard. |
 | **Claim races** | A single atomic `findOneAndUpdate` — two agents cannot both own a conversation. |
 
+### Known limitation
+
+A visitor's `POST /messages` may carry an `attachments[]` entry with a `url` the
+visitor did not obtain from `/upload`. The fields are re-projected and capped, so
+nothing extra reaches the database, and the URL is only ever shown to
+participants of that one conversation — but an agent could be shown a link to an
+attacker-controlled host. Signed attachment ids will close this; until then, do
+not treat an attachment URL as trusted provenance.
+
 Found something? Open a security advisory rather than a public issue.
 
 ---
@@ -382,6 +391,12 @@ corepack pnpm typecheck   # tsc --noEmit
 corepack pnpm test        # vitest run
 corepack pnpm build       # tsup → dist/ (ESM + CJS + types)
 ```
+
+| Doc | For |
+|---|---|
+| **[docs/ADMIN.md](./docs/ADMIN.md)** | Operators — local testing, deployment, hardening, troubleshooting |
+| **[docs/STATE.md](./docs/STATE.md)** | Contributors — current state and the next tasks |
+| [CHANGELOG.md](./CHANGELOG.md) | Release notes |
 
 | Path | What it is |
 |---|---|

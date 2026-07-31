@@ -55,4 +55,12 @@ jobs:
       # allowlist before it reaches npm rather than after.
       - name: Verify publishable tarball
         if: matrix.node == '20'
-        run: pnpm pack --dry-run
+        run: |
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+          tar -tzf "$RUNNER_TEMP"/livechat-bridge-*.tgz | sort
+          # Every subpath in the exports map must actually be in the tarball.
+          for f in dist/index.js dist/widget/index.js dist/server/index.js \
+                   dist/admin/index.js dist/widget/widget.css dist/admin/admin.css; do
+            tar -tzf "$RUNNER_TEMP"/livechat-bridge-*.tgz | grep -qx "package/$f" \
+              || { echo "::error::missing $f in tarball"; exit 1; }
+          done
